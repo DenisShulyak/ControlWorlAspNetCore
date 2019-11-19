@@ -1,0 +1,88 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using TaxiApp.DataAccess;
+using TaxiApp.Models;
+
+namespace TaxiApp.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class OrdersController : ControllerBase
+    {
+
+        private readonly TaxiContext _context;
+
+        public OrdersController(TaxiContext context)
+        {
+            _context = context;
+        }
+        // GET: api/Orders
+        //[HttpGet]
+        //public IEnumerable<string> Get()
+        //{
+            
+        //    return new string[] { "value1", "value2" };
+        //}
+
+        // GET: api/Orders/5
+        [HttpGet]
+        public List<Order> Get()
+        {
+            List<Order> orders = new List<Order>();
+            
+            foreach(var order in _context.Orders.ToList())
+            {
+                if (order.State == "Waiting")
+                {
+                orders.Add(order);
+                }
+            }
+            return orders;
+        }
+        //[HttpGet]
+        //public List<Client> ClientsGet()
+        //{
+        //    var clients = _context.Clients.ToList();
+        //    return clients;
+        //}
+        //PUT: api/Create/9856489724
+        [HttpPut("{phoneNumber}")]
+        public void CreatePut(string phoneNumber)
+        {
+            phoneNumber = "+" + phoneNumber;
+            Order order = new Order();
+            foreach(var client in _context.Clients.ToList())
+            {
+                if(client.NumberPhone == phoneNumber)
+                {
+                    order.State = "Waiting";
+                    order.PhoneClient = client.NumberPhone;
+                }
+            }
+            _context.Orders.AddRange(order);
+            _context.SaveChanges();
+        }
+        // POST: api/Orders
+        [HttpPost]
+        public void Post([FromBody] string value)
+        {
+        }
+
+        // PUT: api/Orders/5
+        [HttpPut("{id}")]
+        public void Put(int id, [FromBody] string value)
+        {
+        }
+
+        // DELETE: api/ApiWithActions/5
+        [HttpDelete("{id}")]
+        public void Delete(int id)
+        {
+        }
+    }
+}
